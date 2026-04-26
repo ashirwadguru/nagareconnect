@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import { getMapComplaints } from '../../services/complaintService';
 import { Link } from 'react-router-dom';
@@ -15,6 +15,10 @@ const MapView = ({ role = 'citizen' }) => {
   const [center, setCenter] = useState(defaultCenter);
   const [filter, setFilter] = useState('all');
   const [mapError, setMapError] = useState(null);
+  const [locLoading, setLocLoading] = useState(false);
+  const [locError, setLocError]   = useState('');
+  const mapRef = useRef(null);
+  const onMapLoad = useCallback(map => { mapRef.current = map; }, []);
 
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 
@@ -37,6 +41,27 @@ const MapView = ({ role = 'citizen' }) => {
       );
     }
   }, []);
+
+  const goToMyLocation = () => {
+    setLocError('');
+    if (!navigator.geolocation) { setLocError('Geolocation not supported'); return; }
+    setLocLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setUserLocation(loc);
+        setLocLoading(false);
+        if (mapRef.current) {
+          mapRef.current.panTo(loc);
+          mapRef.current.setZoom(15);
+        } else {
+          setCenter(loc);
+        }
+      },
+      () => { setLocError('Location access denied'); setLocLoading(false); },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  };
 
   const filtered = filter === 'all' ? complaints : complaints.filter(c => c.status === filter);
 
@@ -105,10 +130,12 @@ const MapView = ({ role = 'citizen' }) => {
         {!isLoaded ? (
           <div className="spinner-overlay" style={{ height: '100%' }}><div className="spinner" /></div>
         ) : (
+          <div style={{ position: 'relative', width: '100%', height: '100%' }}>
           <GoogleMap
             mapContainerStyle={containerStyle}
             center={center}
             zoom={13}
+            onLoad={onMapLoad}
             options={{
               styles: darkMapStyle,
               zoomControl: true,
@@ -188,6 +215,52 @@ const MapView = ({ role = 'citizen' }) => {
               </InfoWindow>
             )}
           </GoogleMap>
+
+            {/* ── My Location FAB ── */}
+            <button
+              onClick={goToMyLocation}
+              disabled={locLoading}
+              title="Go to my location"
+              style={{
+                position: 'absolute',
+                bottom: 80,
+                right: 12,
+                width: 44,
+                height: 44,
+                borderRadius: '50%',
+                background: locLoading ? '#1a2a3a' : '#0d1b2a',
+                border: '2px solid #22c55e',
+                boxShadow: '0 0 0 3px rgba(34,197,94,0.2), 0 4px 18px rgba(0,0,0,0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: locLoading ? 'wait' : 'pointer',
+                zIndex: 10,
+                transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 0 0 5px rgba(34,197,94,0.3), 0 6px 24px rgba(0,0,0,0.6)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(34,197,94,0.2), 0 4px 18px rgba(0,0,0,0.5)'; }}
+            >
+              {locLoading ? (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="#22c55e" strokeWidth="2" strokeDasharray="31.4" strokeDashoffset="10">
+                    <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite" />
+                  </circle>
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="3" fill="#22c55e" />
+                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+                  <circle cx="12" cy="12" r="7" />
+                </svg>
+              )}
+            </button>
+            {locError && (
+              <div style={{ position: 'absolute', bottom: 132, right: 12, background: '#1a0a0a', border: '1px solid #ef444455', borderRadius: 8, padding: '6px 12px', fontSize: 11, color: '#ef4444', whiteSpace: 'nowrap', zIndex: 10 }}>
+                ⚠️ {locError}
+              </div>
+            )}
+          </div>
         )}
       </div>
 

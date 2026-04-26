@@ -72,7 +72,7 @@ const login = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     const [rows] = await db.query(
-      'SELECT id, name, email, role, phone, avatar_url, points, created_at FROM users WHERE id = ?',
+      'SELECT id, name, email, role, phone, avatar_url, points, address, dob, created_at FROM users WHERE id = ?',
       [req.user.id]
     );
     if (rows.length === 0) return res.status(404).json({ message: 'User not found' });
@@ -82,4 +82,38 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe };
+const updateProfile = async (req, res) => {
+  const { name, email, phone, address, dob } = req.body;
+  try {
+    // Ensure address & dob columns exist (idempotent)
+    await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS address VARCHAR(255) DEFAULT NULL`).catch(() => {});
+    await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS dob DATE DEFAULT NULL`).catch(() => {});
+
+    if (email) {
+      const [dup] = await db.query('SELECT id FROM users WHERE email = ? AND id != ?', [email, req.user.id]);
+      if (dup.length > 0) return res.status(400).json({ message: 'Email already in use' });
+    }
+
+    await db.query(
+      `UPDATE users SET
+        name    = COALESCE(?, name),
+        email   = COALESCE(?, email),
+        phone   = COALESCE(?, phone),
+        address = COALESCE(?, address),
+        dob     = COALESCE(?, dob)
+       WHERE id = ?`,
+      [name || null, email || null, phone || null, address || null, dob || null, req.user.id]
+    );
+
+    const [rows] = await db.query(
+      'SELECT id, name, email, role, phone, avatar_url, points, address, dob, created_at FROM users WHERE id = ?',
+      [req.user.id]
+    );
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+module.exports = { register, login, getMe, updateProfile };

@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Sidebar from './components/Sidebar';
@@ -29,16 +28,12 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminWorkers from './pages/admin/AdminWorkers';
 
 const AppLayout = ({ children }) => {
-  const [collapsed, setCollapsed] = useState(false);
-  const sidebarW = collapsed ? 64 : 240;
-
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0a0a' }}>
-      <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(p => !p)} />
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#0a0a0a' }}>
+      <Sidebar />
       <main style={{
         flex: 1,
-        marginLeft: sidebarW,
-        transition: 'margin-left 0.25s ease',
+        paddingTop: 56,
         minHeight: '100vh',
         background: '#0a0a0a',
         overflow: 'auto',

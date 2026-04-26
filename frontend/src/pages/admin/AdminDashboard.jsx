@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { getStats } from '../../services/adminService';
 import { getAllComplaints } from '../../services/complaintService';
 import { useAuth } from '../../context/AuthContext';
-import { FiBell, FiSearch, FiChevronDown, FiClipboard, FiUsers, FiMap } from 'react-icons/fi';
+import { FiBell, FiSearch, FiChevronDown, FiClipboard, FiUsers, FiMap, FiEdit2 } from 'react-icons/fi';
+import ProfileModal from '../../components/ProfileModal';
 
 /* SVG Sparkline */
 const Sparkline = ({ data }) => {
@@ -37,6 +38,7 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     Promise.all([getStats(), getAllComplaints({ limit: 5 })])
@@ -59,6 +61,8 @@ const AdminDashboard = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#0a0a0a' }}>
 
+      {profileOpen && <ProfileModal onClose={() => setProfileOpen(false)} />}
+
       {/* ── Topbar ── */}
       <div style={{ height: 56, background: '#0d0d0d', borderBottom: '1px solid #1a1a1a', display: 'flex', alignItems: 'center', padding: '0 24px', gap: 12, flexShrink: 0 }}>
         <div style={{ flex: 1 }}>
@@ -75,10 +79,28 @@ const AdminDashboard = () => {
           </div>
           {pending > 0 && <span style={{ position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, background: '#ef4444', fontSize: 9, fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 3px' }}>{pending}</span>}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 10px', background: '#111', border: '1px solid #1a1a1a', borderRadius: 7, cursor: 'pointer' }}>
-          <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#000' }}>{user?.name?.[0]}</div>
+        {/* Yellow avatar — opens profile modal */}
+        <button
+          onClick={() => setProfileOpen(true)}
+          title="Edit your profile"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 7,
+            padding: '4px 10px',
+            background: '#111', border: '1px solid #1a1a1a', borderRadius: 7,
+            cursor: 'pointer',
+            transition: 'border-color 0.15s, box-shadow 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = '#22c55e55'; e.currentTarget.style.boxShadow = '0 0 0 2px rgba(34,197,94,0.15)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = '#1a1a1a'; e.currentTarget.style.boxShadow = 'none'; }}
+        >
+          <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#000', position: 'relative' }}>
+            {user?.name?.[0]}
+            <span style={{ position: 'absolute', bottom: -1, right: -1, width: 10, height: 10, borderRadius: '50%', background: '#0d0d0d', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <FiEdit2 size={6} color="#22c55e" />
+            </span>
+          </div>
           <FiChevronDown size={11} color="#4b5563" />
-        </div>
+        </button>
       </div>
 
       {/* ── Scrollable content ── */}

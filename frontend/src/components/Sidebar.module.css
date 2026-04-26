@@ -1,153 +1,260 @@
-.sidebar {
+/* ── Top Navigation Bar ── */
+.topNav {
   position: fixed;
   top: 0;
   left: 0;
-  width: 240px;
-  height: 100vh;
+  right: 0;
+  height: 56px;
   background: #0d0d0d;
-  border-right: 1px solid #1a1a1a;
+  border-bottom: 1px solid #1a1a1a;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  padding: 0 20px;
   z-index: 100;
-  overflow: hidden;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 24px rgba(0,0,0,0.5);
 }
 
-/* Logo */
-.logo {
+/* ── Brand (clickable button) ── */
+.brand {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 20px 18px 16px;
-  border-bottom: 1px solid #1a1a1a;
+  padding: 6px 16px 6px 4px;
+  margin-right: 20px;
+  border-right: 1px solid #1a1a1a;
+  flex-shrink: 0;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-bottom: none;
+  border-right: 1px solid #1a1a1a;
+  cursor: pointer;
+  border-radius: 8px 0 0 8px;
+  transition: background 0.18s ease;
+  outline: none;
 }
 
-.logoDot {
+.brand:hover {
+  background: rgba(34,197,94,0.06);
+}
+
+.brandDot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: #22c55e;
   box-shadow: 0 0 8px #22c55e;
   flex-shrink: 0;
-  animation: glow 2s infinite;
+  animation: topGlow 2s infinite;
 }
 
-@keyframes glow {
-  0%, 100% { box-shadow: 0 0 6px #22c55e; }
-  50% { box-shadow: 0 0 12px #22c55e; }
-}
-
-.logoMain {
+.brandName {
   font-family: 'Rajdhani', sans-serif;
   font-size: 15px;
   font-weight: 700;
   color: #f1f5f9;
   letter-spacing: 0.03em;
+  white-space: nowrap;
   line-height: 1.2;
+  text-align: left;
 }
 
-.logoSub {
-  font-size: 9px;
+.brandSub {
+  font-size: 8px;
   color: #374151;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin-top: 2px;
+  margin-top: 1px;
+  text-align: left;
 }
 
-/* Nav */
+/* ── Nav ── */
 .nav {
-  flex: 1;
-  padding: 16px 10px;
-  overflow-y: auto;
-}
-
-.navGroup { margin-bottom: 4px; }
-
-.navGroupLabel {
-  font-size: 9px;
-  font-weight: 700;
-  color: #374151;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 0 8px;
-  margin-bottom: 4px;
-}
-
-.navItem {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 10px;
-  border-radius: 7px;
-  color: #4b5563;
-  font-size: 13px;
-  font-weight: 500;
-  transition: background 0.15s, color 0.15s;
-  margin-bottom: 2px;
-  text-decoration: none;
-}
-
-.navItem:hover {
-  background: #111;
-  color: #9ca3af;
-}
-
-.active {
-  background: rgba(34,197,94,0.08) !important;
-  color: #22c55e !important;
-  border-left: 2px solid #22c55e;
-  padding-left: 8px;
-}
-
-.navIcon {
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.navLabel { flex: 1; }
-
-/* User block */
-.userBlock {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 12px;
-  border-top: 1px solid #1a1a1a;
-  background: #0a0a0a;
-}
-
-.userAvatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1.5px solid #22c55e;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  gap: 2px;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.nav::-webkit-scrollbar { display: none; }
+
+/* ── Nav Item ── */
+.navItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 7px 16px;
+  border-radius: 8px;
+  color: #6b7280;
+  font-family: 'Rajdhani', 'Inter', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  white-space: nowrap;
+  position: relative;
+  border: 1px solid transparent;
+  transition:
+    color        0.18s ease,
+    background   0.18s ease,
+    border-color 0.18s ease,
+    transform    0.15s ease,
+    box-shadow   0.18s ease;
+}
+
+.navItem:hover {
+  color: #e5e7eb;
+  background: rgba(255,255,255,0.05);
+  border-color: #2a2a2a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+}
+
+.navItem.active {
+  color: #22c55e;
+  background: rgba(34,197,94,0.08);
+  border-color: rgba(34,197,94,0.25);
+  box-shadow: 0 0 0 1px rgba(34,197,94,0.12);
+}
+
+.navItem.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: #22c55e;
+  border-radius: 2px 2px 0 0;
+  box-shadow: 0 0 8px #22c55e88;
+}
+
+.navIcon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.navLabel {
+  flex: 1;
+}
+
+/* ── User block (dropdown trigger) ── */
+.userBlock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  background: #111;
+  border: 1px solid #1a1a1a;
+  border-radius: 9px;
+  flex-shrink: 0;
+  margin-left: 12px;
+  max-width: 180px;
+  height: 38px;
+  box-sizing: border-box;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  cursor: pointer;
+  position: relative;
+  outline: none;
+  user-select: none;
+  overflow: visible;
+}
+
+.userBlock:hover,
+.userBlock:focus {
+  border-color: #2a2a2a;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.userAvatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
   font-weight: 700;
   font-family: 'Rajdhani', sans-serif;
   flex-shrink: 0;
-  background: #111;
 }
 
-.userInfo { flex: 1; min-width: 0; }
+.userInfo {
+  min-width: 0;
+}
 
 .userName {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   color: #d1d5db;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 80px;
 }
 
 .userRole {
-  font-size: 10px;
-  letter-spacing: 0.04em;
+  font-size: 9px;
+  letter-spacing: 0.05em;
   text-transform: capitalize;
   margin-top: 1px;
+}
+
+/* ── Dropdown ── */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 160px;
+  background: #111;
+  border: 1px solid #252525;
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+  animation: dropFade 0.18s ease;
+  z-index: 200;
+}
+
+.dropItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 12px;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.14s ease, color 0.14s ease;
+}
+
+.dropItem:hover {
+  background: rgba(255,255,255,0.05);
+  color: #f1f5f9;
+}
+
+.dropDanger:hover {
+  background: rgba(239,68,68,0.1);
+  color: #ef4444;
+}
+
+.dropDivider {
+  height: 1px;
+  background: #1e1e1e;
+  margin: 4px 0;
 }
 
 .logoutBtn {
@@ -155,13 +262,15 @@
   border: none;
   color: #374151;
   cursor: pointer;
-  font-size: 15px;
   display: flex;
   align-items: center;
-  padding: 5px;
+  padding: 4px 5px;
   border-radius: 5px;
   transition: color 0.15s, background 0.15s;
   flex-shrink: 0;
 }
 
-.logoutBtn:hover { color: #ef4444; background: rgba(239,68,68,0.08); }
+.logoutBtn:hover {
+  color: #ef4444;
+  background: rgba(239,68,68,0.1);
+}
